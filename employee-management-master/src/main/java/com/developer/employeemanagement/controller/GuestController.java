@@ -34,8 +34,6 @@ public class GuestController {
         return guestService.save(guest);
     }
 
-
-
     @PostMapping("/filter")
     public List filterColumn(@RequestBody GuestFilterRequestDTO guestFilterRequest) {
         String column = guestFilterRequest.getColumn();

@@ -120,27 +120,30 @@ public class BookingController {
         }
     }
 
-
     @PostMapping
-    public Booking save(@RequestBody Booking booking) throws NotFoundException {
+    public ResponseEntity<Object> save(@RequestBody Booking booking) {
         try {
             Guest guest = guestService.findById(booking.getGuest().getId())
-                    .orElseThrow(() -> {
-                        return new NotFoundException("Guest não encontrado com ID: " + booking.getGuest().getId());
-                    });
+                    .orElseThrow(() -> new NotFoundException("Guest não encontrado com ID: " + booking.getGuest().getId()));
 
-            double dailysValue = dailyRateService.calculateTotalValue(booking.getScheduledCheckinDate(), booking.getScheduledCheckoutDate());
-            booking.setDailyValue(dailysValue);
+            double dailyValue = dailyRateService.calculateTotalValue(booking.getScheduledCheckinDate(), booking.getScheduledCheckoutDate());
+            booking.setDailyValue(dailyValue);
 
             if (booking.isUsePark()) {
                 double parkFeeValue = dailyRateService.calculateParkFee(booking.getScheduledCheckinDate(), booking.getScheduledCheckoutDate());
                 booking.setParkFee(parkFeeValue);
             }
-            return bookingService.save(booking);
+
+            return new ResponseEntity<Object>(bookingService.save(booking), HttpStatus.OK);
         } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+            // Configurar mensagem amigável para o usuário
+            return new ResponseEntity<Object>( "Não foi possível criar uma reserva pois esse usuário não existe!", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            // Configurar mensagem amigável para o usuário para outros tipos de exceção, se necessário
+            return new ResponseEntity<Object>("Algo deu errado!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @PutMapping
     public Booking update(@RequestBody Booking booking) {
