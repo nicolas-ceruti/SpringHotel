@@ -5,12 +5,14 @@
 - Registre um servidor PostgreSQL. Durante o desenvolvimento do projeto foi utilizada a versão 16.
 
 <br/>
+
 ## Configurações de Conexão:
 
  - Abra o arquivo application.properties.
  - Insira as informações de conexão com o banco de dados, como URL, usuário e senha.
 
    <br/>
+   
 ## Configurações do Hibernate e JPA:
 
 **O Hibernate abstrai o seu código SQL, toda a camada JDBC e o SQL será gerado em tempo de execução**
@@ -33,8 +35,12 @@
    - A propriedade `spring.jpa.hibernate.ddl-auto=create` instruirá o Hibernate a criar automaticamente as tabelas no banco de dados. Utilize isso durante o desenvolvimento, mas considere alternativas como `update` ou `validate` em ambientes de produção para evitar a perda de dados.
 <br/>
 
+## Testando os endpoints
+Disponibilizei um arquivo nomeado como **SpringHotel.postman_collection** no diretório raiz do projeto. Basta importar o arquivo para o Postman e seu ambiente estará configurado.
 
-# Requisitos funcionais:
+<br/>
+
+## Requisitos funcionais:
 - Armazenar de forma persiste o cadastro de hóspedes (Informações mínimas:
 Nome, documento, telefone);
 * Armazenar de forma persistente as reservas geradas;
@@ -45,7 +51,7 @@ Nome, documento, telefone);
 * Permitir ao atendente realizar o checkout;
 <br/>
 
-# Regras de negócio:
+## Regras de negócio:
 * Diárias de segunda à sexta-feira terão um valor fixo de R$ 120,00;
 * Diárias em finais de semana terão um valor fixo de R$ 180,00;
 * Caso o hóspede tenha carro e necessite utilizar as vagas disponíveis no
