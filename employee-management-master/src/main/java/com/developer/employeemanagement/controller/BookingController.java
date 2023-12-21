@@ -75,11 +75,8 @@ public class BookingController {
             } else {
                 throw new NotFoundException("Reserva não encontrada para o ID: " + operationRequestDTO.getId());
             }
-
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -113,18 +110,16 @@ public class BookingController {
                 throw new NotFoundException("Reserva não encontrada para o ID: " + operationRequestDTO.getId());
             }
 
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody Booking booking) {
+    public Booking save(@RequestBody Booking booking) throws Exception {
         try {
             Guest guest = guestService.findById(booking.getGuest().getId())
-                    .orElseThrow(() -> new NotFoundException("Guest não encontrado com ID: " + booking.getGuest().getId()));
+                    .orElseThrow(() -> new Exception("Guest não encontrado com ID: " + booking.getGuest().getId()));
 
             double dailyValue = dailyRateService.calculateTotalValue(booking.getScheduledCheckinDate(), booking.getScheduledCheckoutDate());
             booking.setDailyValue(dailyValue);
@@ -134,13 +129,11 @@ public class BookingController {
                 booking.setParkFee(parkFeeValue);
             }
 
-            return new ResponseEntity<Object>(bookingService.save(booking), HttpStatus.OK);
-        } catch (NotFoundException e) {
-            // Configurar mensagem amigável para o usuário
-            return new ResponseEntity<Object>( "Não foi possível criar uma reserva pois esse usuário não existe!", HttpStatus.BAD_REQUEST);
+            return bookingService.save(booking);
+
         } catch (Exception e) {
-            // Configurar mensagem amigável para o usuário para outros tipos de exceção, se necessário
-            return new ResponseEntity<Object>("Algo deu errado!", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new Exception("Algo deu errado");
+
         }
     }
 
