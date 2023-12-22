@@ -8,6 +8,7 @@ import com.developer.employeemanagement.service.BookingService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,7 +25,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findAll() {
-        return bookingRepository.findAll();
+        List<Booking>  bookings =  bookingRepository.findAll();
+        // Ordenar a lista pelo ID
+        bookings.sort(Comparator.comparing(Booking::getId).reversed());
+        return bookings;
     }
 
     public List<Guest> findActiveGuests() {
@@ -34,6 +38,7 @@ public class BookingServiceImpl implements BookingService {
                 .map(Booking::getGuest)
                 .distinct()
                 .collect(Collectors.toList());
+
     }
 
     public List<Guest> findScheduledBookings() {

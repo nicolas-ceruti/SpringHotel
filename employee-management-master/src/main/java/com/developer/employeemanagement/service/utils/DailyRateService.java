@@ -1,6 +1,7 @@
 package com.developer.employeemanagement.service.utils;
 
 
+
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -13,12 +14,12 @@ public class DailyRateService {
 
     public double calculateTotalValue(LocalDateTime checkin, LocalDateTime checkout) {
         long diasDeEstadia = calculateDays(checkin, checkout);
-        return calculateDailyValue(diasDeEstadia);
+        return calculateDailyValue(diasDeEstadia, checkin);
     }
 
     public double calculateParkFee(LocalDateTime checkin, LocalDateTime checkout) {
         long diasDeEstadia = calculateDays(checkin, checkout);
-        return calculateParkFeeValue(diasDeEstadia);
+        return calculateParkFeeValue(diasDeEstadia, checkin);
     }
 
     public double calculateCheckoutFee(LocalDateTime checkout) {
@@ -37,14 +38,15 @@ public class DailyRateService {
         LocalDate dataCheckin = checkin.toLocalDate();
         LocalDate dataCheckout = checkout.toLocalDate();
 
-        return Duration.between(dataCheckin.atStartOfDay(), dataCheckout.atStartOfDay()).toDays() + 1;
+        return Duration.between(dataCheckin.atStartOfDay(), dataCheckout.atStartOfDay()).toDays();
     }
 
-    private double calculateDailyValue(long diasDeEstadia) {
+    private double calculateDailyValue(long diasDeEstadia, LocalDateTime checkin) {
         double valorTotal = 0.0;
 
-        LocalDate dataAtual = LocalDate.now();
+
         for (int i = 0; i < diasDeEstadia; i++) {
+            LocalDate dataAtual = checkin.toLocalDate().plusDays(i);
             DayOfWeek diaDaSemana = dataAtual.plusDays(i).getDayOfWeek();
 
             if (diaDaSemana == DayOfWeek.SATURDAY || diaDaSemana == DayOfWeek.SUNDAY) {
@@ -57,11 +59,11 @@ public class DailyRateService {
         return valorTotal;
     }
 
-    private double calculateParkFeeValue(long diasDeEstadia) {
+    private double calculateParkFeeValue(long diasDeEstadia, LocalDateTime checkin) {
         double valorTotal = 0.0;
 
-        LocalDate dataAtual = LocalDate.now();
         for (int i = 0; i < diasDeEstadia; i++) {
+            LocalDate dataAtual = checkin.toLocalDate().plusDays(i);
             DayOfWeek diaDaSemana = dataAtual.plusDays(i).getDayOfWeek();
 
             if (diaDaSemana == DayOfWeek.SATURDAY || diaDaSemana == DayOfWeek.SUNDAY) {

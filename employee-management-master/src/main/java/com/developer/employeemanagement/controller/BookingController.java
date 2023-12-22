@@ -8,6 +8,8 @@ import com.developer.employeemanagement.service.BookingService;
 import com.developer.employeemanagement.service.GuestService;
 import com.developer.employeemanagement.service.utils.DailyRateService;
 import javassist.NotFoundException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/booking")
+@CrossOrigin(origins = "http://localhost:4200/")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -63,13 +66,23 @@ public class BookingController {
 
             if (optionalBooking.isPresent()) {
 
-                // Verifica se o horário de check-in é posterior às 14h00min
+                // Verifica se o horário de check-in é anterior às 14h00min
                 if (checkinDate.toLocalTime().isBefore(LocalTime.of(14, 0))) {
                     throw new IllegalArgumentException("O horário para a realização do check-in deve ser após as 14h00min");
                 }
 
                 Booking booking = optionalBooking.get();
                 booking.setCheckin(checkinDate);
+
+
+                if (booking.isUsePark()) {
+                    double parkFeeValue = dailyRateService.calculateParkFee(booking.getCheckin(), booking.getScheduledCheckoutDate());
+                    booking.setParkFee(parkFeeValue);
+                }
+
+                //Recalcula o valor das diárias com base nas data efetiva do checkin
+                double dailyValue = dailyRateService.calculateTotalValue(booking.getCheckin(), booking.getScheduledCheckoutDate());
+                booking.setDailyValue(dailyValue);
 
                 return bookingService.save(booking);
             } else {
@@ -91,21 +104,34 @@ public class BookingController {
             if (optionalBooking.isPresent()) {
 
                 Booking booking = optionalBooking.get();
-                booking.setCheckout(checkoutDate);
 
-                // Verifica se o horário de check-in é posterior às 12h00min
-                if (checkoutDate.toLocalTime().isAfter(LocalTime.of(12, 0))) {
-                    double rate = dailyRateService.calculateCheckoutFee(checkoutDate);
-                    booking.setCheckoutFee(rate);
+                if(booking.getCheckin() != null) {
+                    booking.setCheckout(checkoutDate);
+
+                    // Verifica se o horário de check-in é posterior às 12h00min
+                    if (checkoutDate.toLocalTime().isAfter(LocalTime.of(12, 0))) {
+                        double rate = dailyRateService.calculateCheckoutFee(checkoutDate);
+                        booking.setCheckoutFee(rate);
+                    }
+
+                    if (booking.isUsePark()) {
+                        double parkFeeValue = dailyRateService.calculateParkFee(booking.getCheckin(), booking.getCheckout());
+                        booking.setParkFee(parkFeeValue);
+                    }
+
+                    //Recalcula o valor das diárias com base nas data efetiva do checkout
+                    double dailyValue = dailyRateService.calculateTotalValue(booking.getCheckin(), booking.getCheckout());
+                    booking.setDailyValue(dailyValue);
+
+                    double checkoutFee = booking.getCheckoutFee();
+                    double parkFee = booking.getParkFee();
+                    booking.setFinalValue(dailyValue + checkoutFee + parkFee);
+
+
+                    return bookingService.save(booking);
+                }else{
+                    throw new Exception("Antes de realizar um checkout o checkin deve ser feito.");
                 }
-
-                double dailyValue = booking.getDailyValue();
-                double checkoutFee = booking.getCheckoutFee();
-                double parkFee = booking.getParkFee();
-                booking.setFinalValue(dailyValue + checkoutFee + parkFee);
-
-
-                return bookingService.save(booking);
             } else {
                 throw new NotFoundException("Reserva não encontrada para o ID: " + operationRequestDTO.getId());
             }
@@ -121,6 +147,7 @@ public class BookingController {
             Guest guest = guestService.findById(booking.getGuest().getId())
                     .orElseThrow(() -> new Exception("Guest não encontrado com ID: " + booking.getGuest().getId()));
 
+            //Calcula o valor das diárias com base nas datas de agendamento
             double dailyValue = dailyRateService.calculateTotalValue(booking.getScheduledCheckinDate(), booking.getScheduledCheckoutDate());
             booking.setDailyValue(dailyValue);
 
