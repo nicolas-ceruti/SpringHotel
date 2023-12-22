@@ -66,3 +66,8 @@ procedimento seja realizado posterior, deverá ser cobrada uma taxa adicional de
 semana)
 * Durante o processo de checkout, deverá ser exibido em detalhes o total geral da
 reserva a ser paga;
+
+
+## Features:
+- Paginação e ordenação
+
