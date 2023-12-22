@@ -46,7 +46,7 @@ public class DailyRateService {
 
 
         for (int i = 0; i < diasDeEstadia; i++) {
-            LocalDate dataAtual = checkin.toLocalDate().plusDays(i);
+            LocalDate dataAtual = checkin.toLocalDate();
             DayOfWeek diaDaSemana = dataAtual.plusDays(i).getDayOfWeek();
 
             if (diaDaSemana == DayOfWeek.SATURDAY || diaDaSemana == DayOfWeek.SUNDAY) {
@@ -54,8 +54,8 @@ public class DailyRateService {
             } else {
                 valorTotal += 120.0; // Tarifa de segunda a sexta-feira
             }
-        }
 
+        }
         return valorTotal;
     }
 
@@ -63,7 +63,7 @@ public class DailyRateService {
         double valorTotal = 0.0;
 
         for (int i = 0; i < diasDeEstadia; i++) {
-            LocalDate dataAtual = checkin.toLocalDate().plusDays(i);
+            LocalDate dataAtual = checkin.toLocalDate();
             DayOfWeek diaDaSemana = dataAtual.plusDays(i).getDayOfWeek();
 
             if (diaDaSemana == DayOfWeek.SATURDAY || diaDaSemana == DayOfWeek.SUNDAY) {

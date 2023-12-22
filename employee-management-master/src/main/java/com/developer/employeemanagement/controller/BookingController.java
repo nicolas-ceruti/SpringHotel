@@ -74,13 +74,11 @@ public class BookingController {
                 Booking booking = optionalBooking.get();
                 booking.setCheckin(checkinDate);
 
-
                 if (booking.isUsePark()) {
                     double parkFeeValue = dailyRateService.calculateParkFee(booking.getCheckin(), booking.getScheduledCheckoutDate());
                     booking.setParkFee(parkFeeValue);
                 }
 
-                //Recalcula o valor das diárias com base nas data efetiva do checkin
                 double dailyValue = dailyRateService.calculateTotalValue(booking.getCheckin(), booking.getScheduledCheckoutDate());
                 booking.setDailyValue(dailyValue);
 
@@ -119,7 +117,6 @@ public class BookingController {
                         booking.setParkFee(parkFeeValue);
                     }
 
-                    //Recalcula o valor das diárias com base nas data efetiva do checkout
                     double dailyValue = dailyRateService.calculateTotalValue(booking.getCheckin(), booking.getCheckout());
                     booking.setDailyValue(dailyValue);
 
