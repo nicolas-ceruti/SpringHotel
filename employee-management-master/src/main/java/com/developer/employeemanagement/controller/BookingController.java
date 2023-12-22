@@ -162,6 +162,28 @@ public class BookingController {
     }
 
 
+
+    @PostMapping("/calculateDaily")
+    public Booking calculateDaily(@RequestBody Booking booking) throws Exception {
+        try {
+
+            double dailyValue = dailyRateService.calculateTotalValue(booking.getCheckin(), booking.getCheckout());
+            booking.setDailyValue(dailyValue);
+
+            if (booking.isUsePark()) {
+                double parkFeeValue = dailyRateService.calculateParkFee(booking.getCheckin(), booking.getCheckout());
+                booking.setParkFee(parkFeeValue);
+            }
+
+            return booking;
+
+        } catch (Exception e) {
+            throw new Exception("Algo deu errado");
+
+        }
+    }
+
+
     @PutMapping
     public Booking update(@RequestBody Booking booking) {
         return bookingService.update(booking);
