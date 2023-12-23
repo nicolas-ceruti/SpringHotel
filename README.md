@@ -70,4 +70,5 @@ reserva a ser paga;
 
 ## Features:
 - Paginação e ordenação
+- Melhorar a resposta das solicitações.
 
